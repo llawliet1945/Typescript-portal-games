@@ -7,10 +7,8 @@ import compression from 'compression';
 import cors from 'cors';
 import UserRoutes from './routers/UserRoutes.js';
 import connection from "./config/sequelize.js";
-
-
+import AuthRoutes from './routers/AuthRoutes.js';
 dotenv.config();
-
 class App {
   public app: Application;
   constructor() {
@@ -18,13 +16,12 @@ class App {
     this.plugins();
     this.routes();
   }
-
   protected routes(): void {
     this.app.route("/").get((req: Request, res: Response) => {
       res.json({message : "success running api"})
     });
-
     this.app.use("/users", UserRoutes);
+    this.app.use("/auth", AuthRoutes);
   }
 
   protected plugins(): void {
@@ -35,18 +32,15 @@ class App {
     this.app.use(cors());
   }
 }
-const port = process.env.APP_PORT;
 const app = new App().app;
 const start = async (): Promise<void> => {
   try {
     await connection.sync();
-    app.listen(3000, () => {
-      console.log(`Server is running on port ${port}`);
+    app.listen(process.env.APP_PORT, () => {
+      console.log(`Server is running on port ${process.env.APP_PORT}`);
     });
   } catch (error) {
     console.error(error);
-    process.exit(1);
   }
 };
-
 void start();

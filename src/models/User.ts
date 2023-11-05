@@ -1,78 +1,67 @@
-import { Sequelize, DataTypes, UUIDV4 } from 'sequelize';
-import { Table, Model, Column, DataType } from "sequelize-typescript";
+import { DataTypes, Sequelize, UUIDV4 } from "sequelize";
+import { Table, Model, Column, DataType, PrimaryKey, AutoIncrement, AllowNull } from "sequelize-typescript";
 
 @Table({
   timestamps: false,
   tableName: "usrs",
 })
 export class User extends Model {
-  userId?: number;
-  userUuid?: string;
-  userUsername?: string;
-  userPassword?: string;
-  userStatus?: number;
-  createdBy?: number;
-  createdDate?: Date;
-  updatedBy?: number;
-  updatedDate?: Date;
+  @PrimaryKey
+  @AutoIncrement
+  @Column({
+    type: DataType.BIGINT,
+    field: 'usrs_id'
+  })
+  userId!: number;
 
-  static initModel(sequelize: Sequelize) {
-    return super.init(
-      {
-        userId: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-          autoIncrement: true,
-          field: 'usrs_id'
-        },
-        userUuid: {
-          type: DataTypes.STRING,
-          defaultValue: UUIDV4,
-          field: 'usrs_uuid'
-        },
-        userUsername: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            field: 'usrs_username'
-        },
-        userPassword: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            field: 'usrs_password'
-        },
-        userStatus: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            field: 'usrs_status',
-            defaultValue: 0
-        },
-        createdBy: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            field: 'created_by'
-        },
-        createdDate: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            field: 'created_date',
-            defaultValue: new Date()
-        },
-        updatedBy: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            field: 'updated_by'
-        },
-        updatedDate: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            field: 'updated_date'
-        },
-      },
-      {
-        sequelize,
-        modelName: 'User',
-        tableName: 'usrs',
-      }
-    );
-  }
+  @Column({
+    type: DataType.STRING(100),
+    defaultValue: Sequelize.literal("gen_random_uuid()"),
+    field: 'usrs_uuid'
+  })
+  userUuid?: string;
+
+  @Column({
+    type: DataType.STRING(60),
+    field: 'usrs_usrnme'
+  })
+  userUsername!: string;
+
+  @Column({
+    type: DataType.STRING(100),
+    field: 'usrs_pass'
+  })
+  userPass!: string;
+
+  @Column({
+    type: DataType.INTEGER,
+    field: 'usrs_sttus',
+    defaultValue: 0
+  })
+  userStatus?: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    field: 'created_by'
+  })
+  createdBy?: number;
+
+  @Column({
+    type: DataType.DATE,
+    field: 'created_date',
+    defaultValue: Sequelize.literal("now()")
+  })
+  createdDate?: Date;
+
+  @Column({
+    type: DataType.INTEGER,
+    field: 'updated_by'
+  })
+  updatedBy?: number;
+
+  @Column({
+    type: DataType.DATE,
+    field: 'updated_date'
+  })
+  updatedDate?: Date;
 }

@@ -1,7 +1,6 @@
 import { Router, Request, Response } from "express";
 import IRouter from './RouteInterface';
 import UserController from "../controller/UserController.js";
-import { success } from './../models/ApiResponse.js';
 
 class UserRoutes implements IRouter {
     public router: Router;
@@ -13,8 +12,10 @@ class UserRoutes implements IRouter {
     
     public routes(): void {
         this.router.get('/', UserController.index);
-        
-        this.router.post('/', UserController.findByUuid);
+        this.router.get('/detail/:userUuid', UserController.findByUuid);
+        this.router.post('/register', UserController.insert);
+        this.router.put('/update/:userUuid', UserController.update);
+        this.router.delete('/delete/:userUuid', UserController.delete);
     }
 }
 export default new UserRoutes().router;
