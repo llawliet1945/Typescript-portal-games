@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize-typescript';
-import dotenv from 'dotenv';
 import { User } from './../models/User.js';
 
 const connection = new Sequelize({
