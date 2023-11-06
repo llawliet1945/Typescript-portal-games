@@ -1,15 +1,13 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import IRouter from './RouteInterface';
 import UserController from "../controller/UserController.js";
 
 class UserRoutes implements IRouter {
     public router: Router;
-
     constructor() {
         this.router = Router();
         this.routes();
     }
-    
     public routes(): void {
         this.router.get('/', UserController.index);
         this.router.get('/detail/:userUuid', UserController.findByUuid);

@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import * as ApiResponse from "../models/ApiResponse.js";
-import { User } from "src/models/User.js";
 dotenv.config();
 
 export interface CustomRequest extends Request {

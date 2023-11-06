@@ -69,7 +69,6 @@ class UserController implements IController {
         }).catch( error => { return ApiResponse.error(`delete data failed`, error, res); });
     }
 }
-
 export const getUserId = (username: string) => {
     User.findOne({ where: { userUsername: username, userStatus: 0 } }).then( dataUser => {
         return dataUser ? dataUser.userId : null;
@@ -78,5 +77,4 @@ export const getUserId = (username: string) => {
         return null;
     });
 }
-
 export default new UserController();
