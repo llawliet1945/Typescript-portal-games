@@ -4,9 +4,11 @@ import * as ApiResponse from "../models/ApiResponse.js";
 import { User } from "../models/User.js";
 import { error } from "console";
 import bcrypt from 'bcrypt';
+import { CustomRequest } from "src/middleware/JwtAuthentication.js";
 
 class UserController implements IController {
     index (req: Request, res: Response): any {
+        console.log((req as CustomRequest).token);
         User.findAll({ where: { userStatus: 0 } }).then( listDataUsers => {
             return ApiResponse.success(`get data success`, listDataUsers.map((user) => ({
                 userUuid: user.userUuid,
@@ -66,7 +68,15 @@ class UserController implements IController {
             }).catch( error => { return ApiResponse.error(`delete data failed`, error, res); });
         }).catch( error => { return ApiResponse.error(`delete data failed`, error, res); });
     }
-    
+}
+
+export const getUserId = (username: string) => {
+    User.findOne({ where: { userUsername: username, userStatus: 0 } }).then( dataUser => {
+        return dataUser ? dataUser.userId : null;
+    }).catch( error => {
+        console.error(error);
+        return null;
+    });
 }
 
 export default new UserController();
