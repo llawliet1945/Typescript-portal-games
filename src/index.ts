@@ -8,6 +8,7 @@ import cors from 'cors';
 import UserRoutes from './routers/UserRoutes.js';
 import connection from "./config/sequelize.js";
 import AuthRoutes from './routers/AuthRoutes.js';
+import jwtAuthentications from './middleware/JwtAuthentication.js';
 dotenv.config();
 class App {
   public app: Application;
@@ -20,7 +21,7 @@ class App {
     this.app.route("/").get((req: Request, res: Response) => {
       res.json({message : "success running api"})
     });
-    this.app.use("/users", UserRoutes);
+    this.app.use("/users", jwtAuthentications, UserRoutes);
     this.app.use("/auth", AuthRoutes);
   }
 

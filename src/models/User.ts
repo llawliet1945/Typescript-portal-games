@@ -1,4 +1,4 @@
-import { DataTypes, Sequelize, UUIDV4 } from "sequelize";
+import { Sequelize } from "sequelize";
 import { Table, Model, Column, DataType, PrimaryKey, AutoIncrement, AllowNull } from "sequelize-typescript";
 
 @Table({

@@ -66,7 +66,8 @@ class UserController implements IController {
             }).catch( error => { return ApiResponse.error(`delete data failed`, error, res); });
         }).catch( error => { return ApiResponse.error(`delete data failed`, error, res); });
     }
-    
 }
-
+export const getUserId = async (username: any) => {
+    return User.findOne({ attributes: ['userId'], where: { userUsername: username, userStatus: 0 } });
+}
 export default new UserController();

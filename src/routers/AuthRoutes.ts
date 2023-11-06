@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import IRouter from './RouteInterface';
 import AuthController from "../controller/AuthController.js";
 

@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import * as ApiResponse from "../models/ApiResponse.js";
 import { User } from "../models/User.js";
-import { error } from "console";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
