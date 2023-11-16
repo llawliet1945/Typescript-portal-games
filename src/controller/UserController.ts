@@ -1,11 +1,8 @@
 import { Request, Response } from "express";
-import IController from "./ControllerInterface.js";
 import * as ApiResponse from "../models/ApiResponse.js";
 import { User } from "../models/User.js";
-import { error } from "console";
-import bcrypt from 'bcrypt';
 
-class UserController implements IController {
+class UserController {
     index (req: Request, res: Response): any {
         User.findAll({ where: { userStatus: 0 } }).then( listDataUsers => {
             return ApiResponse.success(`get data success`, listDataUsers.map((user) => ({
@@ -32,24 +29,6 @@ class UserController implements IController {
             return ApiResponse.error(`get data failed`, error, res);
         });
     }
-    insert(req: Request, res: Response): any {
-        if(req.body.userPass != req.body.userConfirmPass) return ApiResponse.badRequest(`Password and confirmation password not match`, error, res);
-        User.findOne({ where: { userUsername: req.body.userUsername, userStatus: 0 } }).then( data => {
-            if(data) return ApiResponse.badRequest(`username is already exists`, null, res);
-        })
-        bcrypt.hash(req.body.userPass, 20).then(pass => {
-            req.body.userPass = pass;
-            User.create(req.body).then( users => {
-                return ApiResponse.created(`insert data success`, null, res);
-            }).catch(error => {
-                console.error(error);
-                return ApiResponse.error(`get data failed`, error, res);
-            });
-        }).catch(error => {
-            console.error(error);
-            return ApiResponse.error(`get data failed`, error, res);
-        });
-    }
     update(req: Request, res: Response): any {
         User.findOne({ where: { userUuid: req.params.userUuid, userStatus: 0 } }).then( dataUser => {
             if(!dataUser) return ApiResponse.notFound(`user not found`, null, res);
@@ -66,8 +45,5 @@ class UserController implements IController {
             }).catch( error => { return ApiResponse.error(`delete data failed`, error, res); });
         }).catch( error => { return ApiResponse.error(`delete data failed`, error, res); });
     }
-}
-export const getUserId = async (username: any) => {
-    return User.findOne({ attributes: ['userId'], where: { userUsername: username, userStatus: 0 } });
 }
 export default new UserController();

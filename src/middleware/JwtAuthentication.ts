@@ -9,12 +9,12 @@ export interface CustomRequest extends Request {
 }
 
 export default (req: Request, res: Response, next: NextFunction) => {
-    const secretKey : any = process.env.APP_PORT;
+    const secretKey : any = process.env.JWT_SECRET;
     const token = req.header('Authorization')?.replace('Bearer ', '');
     if (!token) return ApiResponse.unauthorized('Authentication failed', null, res);
     jwt.verify(token, secretKey, (err: any, decoded: any) => {
         if (err) return ApiResponse.unauthorized('Authentication failed', null, res);
-        (req as CustomRequest).token = decoded.username;
+        (req as CustomRequest).token = decoded.userId;
         next();
     });
 }

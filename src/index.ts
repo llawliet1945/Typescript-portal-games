@@ -9,6 +9,7 @@ import UserRoutes from './routers/UserRoutes.js';
 import connection from "./config/sequelize.js";
 import AuthRoutes from './routers/AuthRoutes.js';
 import jwtAuthentications from './middleware/JwtAuthentication.js';
+import MailTemplateRoutes from "./routers/MailTemplateRoutes.js";
 dotenv.config();
 class App {
   public app: Application;
@@ -22,6 +23,7 @@ class App {
       res.json({message : "success running api"})
     });
     this.app.use("/users", jwtAuthentications, UserRoutes);
+    this.app.use("/mailTemplates", jwtAuthentications, MailTemplateRoutes);
     this.app.use("/auth", AuthRoutes);
   }
 
