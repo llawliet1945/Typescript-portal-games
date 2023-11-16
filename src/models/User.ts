@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { Table, Model, Column, DataType, PrimaryKey, AutoIncrement, AllowNull } from "sequelize-typescript";
+import { Table, Model, Column, DataType, PrimaryKey, AutoIncrement } from "sequelize-typescript";
 
 @Table({
   timestamps: false,
@@ -20,6 +20,18 @@ export class User extends Model {
     field: 'usrs_uuid'
   })
   userUuid?: string;
+
+  @Column({
+    type: DataType.INTEGER,
+    field: 'usrs_rles_id'
+  })
+  userRoleId?: number;
+
+  @Column({
+    type: DataType.STRING(100),
+    field: 'usrs_email'
+  })
+  userEmail!: string;
 
   @Column({
     type: DataType.STRING(60),

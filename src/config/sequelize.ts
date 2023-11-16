@@ -1,12 +1,18 @@
 import { Sequelize } from 'sequelize-typescript';
-import { User } from './../models/User.js';
+import { User } from '../models/User.js';
+import { UserDetail } from '../models/UserDetail.js';
+import { UserRole } from '../models/UserRole.js';
+import dotenv from 'dotenv';
+import {MailTempalte} from "../models/MailTempaltes.js";
+import {UsetOtp} from "../models/UserOtp.js";
 
+dotenv.config();
 const connection = new Sequelize({
-  database: 'portal_games',
-  username: 'postgres',
-  password: 'admin',
+  database: process.env.DATABASE_NAME,
+  username: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASS,
   dialect: 'postgres',
-  models: [User],
+  models: [User, UserRole, UserDetail, MailTempalte, UsetOtp],
   logging: false,
 });
 
