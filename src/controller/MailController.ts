@@ -42,5 +42,7 @@ class MailController {
             }).catch( error => { return ApiResponse.error(`delete data failed`, error, res); });
         }).catch( error => { return ApiResponse.error(`delete data failed`, error, res); });
     }
+
+
 }
 export default new MailController();
