@@ -7,7 +7,6 @@ import dotenv from 'dotenv';
 import {UserOtp} from "../models/UserOtp.js";
 import {MailTempalte} from "../models/MailTempaltes.js";
 import { sendingMail } from "../config/MailService.js";
-import {error} from "../models/ApiResponse.js";
 
 dotenv.config();
 
@@ -43,9 +42,9 @@ class AuthController {
                 userRoleId: req.body.userRoleId,
                 userStatus: 1
             }).then( users => {
-                MailTempalte.findOne({where : { mailTemplateCode: `otp-activation-account`}}).then( send => {
+                MailTempalte.findOne({where : { mailTemplateCode: `otp-activation-account`}}).then( async send => {
                     if (!send) return ApiResponse.notFound("Template email not found", null, res);
-                    const otp : number = generateOtp(users.userId);
+                    const otp: string = await generateOtp(users.userId);
                     console.log(otp);
                     // @ts-ignore
                     const body = send.mailTemplateMessage?.replaceAll("$otp", otp);
@@ -54,9 +53,9 @@ class AuthController {
                         to: users.userEmail,
                         subject: send.mailTemplateSubject,
                         text: body
-                    }).then( () => {
+                    }).then(() => {
                         return ApiResponse.created(`create user success, please check your email for activation your account`, null, res);
-                    }).catch( (error: any) => {
+                    }).catch((error: any) => {
                         console.error(error);
                         return ApiResponse.error(`error receive email`, error, res);
                     });
@@ -89,25 +88,17 @@ class AuthController {
 }
 
 // @ts-ignore
-const generateOtp = (userId: number) : number  => {
+const generateOtp = async (userId: number) : string  => {
     var otp : string = getOtp().toString();
-    UserOtp.findOne({ where : { userOtpCode : otp, userOtpStatus: 0}}).then( x => {
-        otp = getOtp().toString();
-        var now : Date = new Date();
-        UserOtp.create( {
-            userOtpCode: otp.toString(),
-            userOtpExpiredDate: new Date(now.getTime() + (5 * 60000)),
-            createdBy: userId
-        }).then( userOtp => {
-            return otp;
-        }).catch(error => {
-            console.error(error);
-            return null;
-        });
-    }).catch(error => {
-        console.error(error);
-        return null;
+    const userOtp = await UserOtp.findOne({ where : { userOtpCode : otp, userOtpStatus: 0}});
+    otp = userOtp ? getOtp().toString() : otp;
+    var now : Date = new Date();
+    await UserOtp.create( {
+        userOtpCode: otp.toString(),
+        userOtpExpiredDate: new Date(now.getTime() + (5 * 60000)),
+        createdBy: userId
     });
+    return otp;
 }
 
 const getOtp = () : number  => {
