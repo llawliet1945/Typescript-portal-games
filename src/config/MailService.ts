@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import dotenv from "dotenv";
 dotenv.config();
 // @ts-ignore
-module.exports.sendingMail = async({from, to, subject, text}): Promise<> =>{
+export const sendingMail = async({from, to, subject, text}): Promise<> =>{
     try {
         let mailOptions = ({
             from,
@@ -21,5 +21,4 @@ module.exports.sendingMail = async({from, to, subject, text}): Promise<> =>{
     } catch (error) {
         console.log(error)
     }
-
 }

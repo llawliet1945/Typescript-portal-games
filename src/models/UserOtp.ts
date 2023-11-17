@@ -5,7 +5,7 @@ import { Table, Model, Column, DataType, PrimaryKey, AutoIncrement } from "seque
     timestamps: false,
     tableName: "usrs_otp",
 })
-export class UsetOtp extends Model {
+export class UserOtp extends Model {
     @PrimaryKey
     @AutoIncrement
     @Column({
@@ -29,7 +29,8 @@ export class UsetOtp extends Model {
 
     @Column({
         type: DataType.SMALLINT,
-        field: 'usrs_otp_sttus'
+        field: 'usrs_otp_sttus',
+        defaultValue: 0
     })
     userOtpStatus?: number;
 

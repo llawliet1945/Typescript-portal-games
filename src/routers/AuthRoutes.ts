@@ -13,6 +13,7 @@ class AuthRoutes implements IRouter {
     public routes(): void {
         this.router.post('/signin', AuthController.signin);
         this.router.post('/signup', AuthController.signup);
+        this.router.get('/activation/:otp', AuthController.activationUser);
     }
 }
 export default new AuthRoutes().router;
