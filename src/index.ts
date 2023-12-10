@@ -18,7 +18,7 @@ class App {
     this.plugins();
     this.routes();
   }
-  protected routes(): void {
+  protected async routes(): Promise<void> {
     this.app.route("/").get((req: Request, res: Response) => {
       res.json({message : "success running api"})
     });

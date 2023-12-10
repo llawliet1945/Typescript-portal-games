@@ -7,8 +7,14 @@ import dotenv from 'dotenv';
 import {UserOtp} from "../models/UserOtp.js";
 import {MailTempalte} from "../models/MailTempaltes.js";
 import { sendingMail } from "../config/MailService.js";
+import winston from "winston";
 
 dotenv.config();
+const logger = winston.createLogger({
+    transports: [
+        new winston.transports.Console({})
+    ]
+});
 
 class AuthController {
     signin (req: Request, res: Response) {
@@ -28,49 +34,33 @@ class AuthController {
             return ApiResponse.error(`login failed`, error, res);
         });
     }
-    signup(req: Request, res: Response): any {
+    async signup(req: Request, res: Response) {
         if(req.body.userPass != req.body.userConfirmPass) return ApiResponse.badRequest(`Password and confirmation password not match`, null, res);
-        User.findOne({ where: { userUsername: req.body.userUsername, userStatus: 0 } }).then( data => {
-            if(data) return ApiResponse.badRequest(`username is already exists`, null, res);
-        })
-        bcrypt.hash(req.body.userPass, 20).then(pass => {
-            req.body.userPass = pass;
-            User.create({
-                userUsername: req.body.userUsername,
-                userPass: req.body.userPass,
-                userEmail: req.body.userEmail,
-                userRoleId: req.body.userRoleId,
-                userStatus: 1
-            }).then( users => {
-                MailTempalte.findOne({where : { mailTemplateCode: `otp-activation-account`}}).then( async send => {
-                    if (!send) return ApiResponse.notFound("Template email not found", null, res);
-                    const otp: string = await generateOtp(users.userId);
-                    console.log(otp);
-                    // @ts-ignore
-                    const body = send.mailTemplateMessage?.replaceAll("$otp", otp);
-                    sendingMail({
-                        from: process.env.EMAIL_SENDER,
-                        to: users.userEmail,
-                        subject: send.mailTemplateSubject,
-                        text: body
-                    }).then(() => {
-                        return ApiResponse.created(`create user success, please check your email for activation your account`, null, res);
-                    }).catch((error: any) => {
-                        console.error(error);
-                        return ApiResponse.error(`error receive email`, error, res);
-                    });
-                }).catch(error => {
-                    console.error(error);
-                    return ApiResponse.error(`error send email`, error, res);
-                });
-            }).catch(error => {
-                console.error(error);
-                return ApiResponse.error(`error insert new user`, error, res);
-            });
-        }).catch(error => {
-            console.error(error);
-            return ApiResponse.error(`get data failed`, error, res);
+        const checkUser = await User.findOne({ where: { userUsername: req.body.userUsername, userStatus: 0 } });
+        if(checkUser) return ApiResponse.badRequest(`username is already exists`, null, res);
+        const pass : string = await bcrypt.hash(req.body.userPass, 20);
+        const newUser = await User.create({
+            userUsername: req.body.userUsername,
+            userPass: pass,
+            userEmail: req.body.userEmail,
+            userRoleId: req.body.userRoleId,
+            userStatus: 1
         });
+        const mailTemplate = await MailTempalte.findOne({where : { mailTemplateCode: `otp-activation-account`}});
+        if (!mailTemplate) return ApiResponse.notFound("Template email not found", null, res);
+        const otp = await generateOtp(newUser.userId);
+        logger.log({
+            "level" : "info",
+            "message" : `otp adalah : ${otp}`
+        });
+        const body = mailTemplate.mailTemplateMessage;
+        await sendingMail({
+            from: process.env.EMAIL_SENDER,
+            to: newUser.userEmail,
+            subject: mailTemplate.mailTemplateSubject,
+            text: body?.toString().replaceAll("$otp", otp)
+        });
+        return ApiResponse.created(`create user success, please check your email for activation your account`, null, res);
     }
 
     activationUser(req:Request, res: Response) {
@@ -88,20 +78,15 @@ class AuthController {
 }
 
 // @ts-ignore
-const generateOtp = async (userId: number) : string  => {
-    var otp : string = getOtp().toString();
-    const userOtp = await UserOtp.findOne({ where : { userOtpCode : otp, userOtpStatus: 0}});
-    otp = userOtp ? getOtp().toString() : otp;
-    var now : Date = new Date();
+const generateOtp = async (userId: number) : Promise<string>  => {
+    let otp = Math.floor(100000 + Math.random() * 900000);
+    let now : Date = new Date();
     await UserOtp.create( {
         userOtpCode: otp.toString(),
         userOtpExpiredDate: new Date(now.getTime() + (5 * 60000)),
         createdBy: userId
     });
-    return otp;
+    return otp.toString();
 }
 
-const getOtp = () : number  => {
-    return Math.floor(100000 + Math.random() * 900000);
-}
 export default new AuthController();
