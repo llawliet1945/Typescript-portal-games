@@ -1,5 +1,5 @@
 import { Router } from "express";
-import IRouter from './RouteInterface';
+import IRouter from './RouteInterface.js';
 import AuthController from "../controller/AuthController.js";
 
 class AuthRoutes implements IRouter {
@@ -10,7 +10,7 @@ class AuthRoutes implements IRouter {
         this.routes();
     }
     
-    public routes(): void {
+    public async routes() {
         this.router.post('/signin', AuthController.signin);
         this.router.post('/signup', AuthController.signup);
         this.router.get('/activation/:otp', AuthController.activationUser);
