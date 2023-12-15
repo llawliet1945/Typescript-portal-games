@@ -8,6 +8,7 @@ import {UserOtp} from "../models/UserOtp.js";
 import {MailTempalte} from "../models/MailTempaltes.js";
 import { sendingMail } from "../config/MailService.js";
 import winston from "winston";
+import * as console from "console";
 
 dotenv.config();
 const logger = winston.createLogger({
@@ -49,10 +50,6 @@ class AuthController {
         const mailTemplate = await MailTempalte.findOne({where : { mailTemplateCode: `otp-activation-account`}});
         if (!mailTemplate) return ApiResponse.notFound("Template email not found", null, res);
         const otp = await generateOtp(newUser.userId);
-        logger.log({
-            "level" : "info",
-            "message" : `otp adalah : ${otp}`
-        });
         const body = mailTemplate.mailTemplateMessage;
         await sendingMail({
             from: process.env.EMAIL_SENDER,
@@ -64,15 +61,23 @@ class AuthController {
     }
 
     activationUser(req:Request, res: Response) {
-        UserOtp.findOne( { where : { usetOtpCode : req.params.otp } }).then( otp => {
+        UserOtp.findOne( { where : { userOtpCode : req.params.otp } }).then( otp => {
             if (!otp) return ApiResponse.notFound("Otp not found!", null, res);
-            // @ts-ignore
-            if (otp.userOtpExpiredDate < new Date()) return ApiResponse.badRequest("otp was expired", null, res);
-            otp.update({userOtpStatus: 1}).then( disactive => {
-                User.update({ userStatus: 0 }, { where: { userId: otp.createdBy } }).then( updated => {
-                    return ApiResponse.success("success activation user", null, res);
-                }).catch( error => { return ApiResponse.error(`delete data failed`, error, res); });
-            })
+            if (otp.userOtpExpiredDate != undefined && otp.userOtpExpiredDate < new Date()) {
+                console.log('expired');
+                otp.update({userOtpStatus: 2}).then( disactive => {
+                    User.update({ userStatus: 2 }, { where: { userId: disactive.createdBy } }).then( updated => {
+                        return ApiResponse.badRequest("Otp was expired", null, res);
+                    }).catch( error => { return ApiResponse.error(`delete data failed`, error, res); });
+                })
+            } else {
+                console.log('expired');
+                otp.update({userOtpStatus: 1}).then( disactive => {
+                    User.update({ userStatus: 0 }, { where: { userId: otp.createdBy } }).then( updated => {
+                        return ApiResponse.success("success activation user", null, res);
+                    }).catch( error => { return ApiResponse.error(`delete data failed`, error, res); });
+                })
+            }
         });
     }
 }
