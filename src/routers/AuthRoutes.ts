@@ -10,7 +10,7 @@ class AuthRoutes implements IRouter {
         this.routes();
     }
     
-    public async routes() {
+    public routes () {
         this.router.post('/signin', AuthController.signin);
         this.router.post('/signup', AuthController.signup);
         this.router.get('/activation/:otp', AuthController.activationUser);
